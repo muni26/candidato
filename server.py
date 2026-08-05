@@ -27,10 +27,10 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
                 if cedula and whatsapp:
                     # Append to datos.csv
-                    # Column A is 'cedula', Column B is 'nro'. Delimiter is ';'
-                    # Header is: cedula;nro;;;
+                    # Column A is 'cedula', Column B is 'nro'. Delimiter is ','
+                    # Header is: cedula,nro,,,
                     with open('datos.csv', 'a', encoding='utf-8') as f:
-                        f.write(f"{cedula};{whatsapp};;;\n")
+                        f.write(f"{cedula},{whatsapp},,,\n")
 
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
