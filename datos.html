@@ -282,6 +282,20 @@
         </div>
     </div>
 
+    <!-- WhatsApp Confirmation Modal -->
+    <div id="whatsapp-confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">CONFIRMAR REGISTRO</div>
+            <div id="whatsapp-confirm-text" style="font-size: 16px; margin-bottom: 24px; color: var(--text-dark); text-align: left; line-height: 1.6;">
+                <!-- Filled dynamically -->
+            </div>
+            <div class="modal-btns">
+                <button class="btn btn-green" id="btn-confirm-registrar" style="background-color: #25D366; color: white;">REGISTRAR</button>
+                <button class="btn btn-outline" id="btn-confirm-cancelar">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.csvData = [];
         // Clear all cookies
@@ -426,6 +440,11 @@
             toggleSearchState(false);
         });
 
+        const confirmModal = document.getElementById('whatsapp-confirm-modal');
+        const confirmText = document.getElementById('whatsapp-confirm-text');
+        const btnConfirmRegistrar = document.getElementById('btn-confirm-registrar');
+        const btnConfirmCancelar = document.getElementById('btn-confirm-cancelar');
+
         const btnRegistrar = document.getElementById('btn-registrar-whatsapp');
         if (btnRegistrar) {
             btnRegistrar.addEventListener('click', () => {
@@ -437,7 +456,22 @@
                     return;
                 }
 
-                alert('REGISTRADO');
+                // Show confirmation modal with cedula and whatsapp
+                confirmText.innerHTML = `Por favor, verifique los datos para el registro:<br><br><b>Cédula:</b> ${currentRecord.cedula}<br><b>WhatsApp:</b> ${whatsappInputVal}`;
+                confirmModal.style.display = 'flex';
+            });
+        }
+
+        if (btnConfirmCancelar) {
+            btnConfirmCancelar.addEventListener('click', () => {
+                confirmModal.style.display = 'none';
+            });
+        }
+
+        if (btnConfirmRegistrar) {
+            btnConfirmRegistrar.addEventListener('click', () => {
+                const whatsappInputVal = document.getElementById('whatsapp-input').value.trim();
+                confirmModal.style.display = 'none';
 
                 fetch('/registrar', {
                     method: 'POST',
@@ -450,14 +484,18 @@
                     })
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        console.error('Error al registrar WhatsApp en el servidor');
-                    } else {
+                    if (response.ok) {
+                        alert('REGISTRADO');
                         console.log('WhatsApp registrado correctamente');
+                        document.getElementById('whatsapp-input').value = '';
+                    } else {
+                        console.error('Error al registrar WhatsApp en el servidor');
+                        alert('Error al registrar en el servidor');
                     }
                 })
                 .catch(error => {
                     console.error('Error de red al registrar:', error);
+                    alert('Error de red al registrar');
                 });
             });
         }
