@@ -41,15 +41,15 @@
             margin-bottom: 24px; 
         }
         
-        .logo { width: 220px; border-radius: 0 !important; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05)); }
+        .logo { width: 250px; border-radius: 0 !important; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05)); }
         
         .social-links { 
             display: flex; 
             gap: 12px; 
         } 
         .social-links img { 
-            width: 28px; 
-            height: 28px; 
+            width: 30px; 
+            height: 30px; 
         }
 
         .red-banner { 
@@ -211,7 +211,7 @@
             </div>
         </div>
         
-        <div class="red-banner">VOTAPPY - Sistema de Consultas y Apoyo Electoral<div>
+        <div class="red-banner">Sistema de Consultas y Apoyo Electoral<div>
         
         <div id="search-card" class="card">
             <div class="form-group">
@@ -246,7 +246,7 @@
         </div>
 
         <div class="footer-text">
-            Padrón Municipales 2026 - Fernando de la Mora.
+            VOTAPPY - Desarrollado por el equipo de la Lista 1 Opcióm _
     </div>
 
     <!-- Proposal Modal -->
@@ -431,7 +431,7 @@
             const mesa = currentRecord.mesa;
             const orden = currentRecord.orden;
 
-            const message = `Datos del Elector para las Municipales del 04/10/2026. 
+            const message = `Datos del Elector para las Municipales del 4 de Octubre 
 --- 
 CI - NOMBRE: 
 ${fullName} 
@@ -445,9 +445,13 @@ ${mesa}
 ORDEN 
 ${orden} 
 --- 
-¡Contamos con tu paticipación y tu apoyo! 
+¡Tu participación es Importante! 
 CANDIDATO - INTENDENTE - Lista --
-CANDIDATO - CONCEJAL - Opción --`;
+CANDIDATO - CONCEJAL - Opción --
+---
+Para Consultas al de Fernando de la Mora ingresá acá:
+v v v
+https://candidato.concejal.workers.dev/ `;
 
             const encodedMessage = encodeURIComponent(message);
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
