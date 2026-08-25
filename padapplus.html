@@ -55,7 +55,7 @@
 
         .form-group { margin-bottom: 20px; }
         label { font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block; color: var(--text-muted); }
-        input#cedula { 
+        input#cedula, input#cedula-coordinador {
             width: 100%; 
             padding: 16px; 
             border: 2px solid #e5e7eb; 
@@ -65,7 +65,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
             outline: none;
         }
-        input#cedula:focus { 
+        input#cedula:focus, input#cedula-coordinador:focus {
             border-color: var(--primary-orange); 
             box-shadow: 0 0 0 4px rgba(255, 140, 51, 0.1);
             background-color: white;
@@ -170,6 +170,21 @@
         <img src="padronapp1.png" alt="logo" class="logo">
         <div class="red-banner">Modulo de Registro de Electores</div>
         
+        <div id="coordinator-card" class="card">
+            <div class="form-group">
+                <label for="cedula-coordinador">CEDULA DEL COORDINADOR</label>
+                <input type="number" id="cedula-coordinador" placeholder="Ingrese CI del coordinador" inputmode="numeric">
+            </div>
+            <div id="coordinator-btns" class="btn-row">
+                <button class="btn btn-orange" id="aceptar-coordinador">Consultar</button>
+                <button class="btn btn-outline" id="limpiar-coordinador">Limpiar</button>
+            </div>
+            <div id="result-coordinador" style="display: none; margin-top: 16px; padding: 12px; background-color: #f9fafb; border-radius: 10px;">
+                <div class="result-label">Nombre del Coordinador</div>
+                <div class="result-value" id="result-coordinador-nombre"></div>
+            </div>
+        </div>
+
         <div id="search-card" class="card">
             <div class="form-group">
                 <label for="cedula">Cédula de Identidad</label>
@@ -213,12 +228,18 @@
     <script>
         window.csvData = [];
         let currentRecord = null;
+        let currentCoordinatorRecord = null;
         let isLoaded = false;
 
         const loader = document.getElementById('loading-overlay');
         const searchCard = document.getElementById('search-card');
         const searchBtns = document.getElementById('search-btns');
         const cedulaInput = document.getElementById('cedula');
+        const cedulaCoordinadorInput = document.getElementById('cedula-coordinador');
+        const resultCoordinador = document.getElementById('result-coordinador');
+        const resultCoordinadorNombre = document.getElementById('result-coordinador-nombre');
+        const aceptarCoordinadorBtn = document.getElementById('aceptar-coordinador');
+        const limpiarCoordinadorBtn = document.getElementById('limpiar-coordinador');
         const containerDiv = document.querySelector('.container');
         const redBanner = document.querySelector('.red-banner');
         const resultContainer = document.getElementById('result-container');
@@ -306,6 +327,34 @@
                 </div>
             `;
         }
+
+        aceptarCoordinadorBtn.addEventListener('click', () => {
+            if (!isLoaded) {
+                alert('La base de datos aún se está cargando.');
+                return;
+            }
+            const val = cedulaCoordinadorInput.value.trim();
+            if (!val) {
+                alert('Por favor, ingrese un número de cédula del coordinador.');
+                return;
+            }
+            const match = window.csvData.find(r => r.cedula === val);
+            if (match) {
+                currentCoordinatorRecord = match;
+                resultCoordinadorNombre.textContent = `${match.nombre} ${match.apellido}`;
+                resultCoordinador.style.display = 'block';
+            } else {
+                alert('El número de cédula del coordinador no se encuentra en el padrón.');
+                currentCoordinatorRecord = null;
+                resultCoordinador.style.display = 'none';
+            }
+        });
+
+        limpiarCoordinadorBtn.addEventListener('click', () => {
+            cedulaCoordinadorInput.value = '';
+            currentCoordinatorRecord = null;
+            resultCoordinador.style.display = 'none';
+        });
 
         document.getElementById('aceptar').addEventListener('click', () => {
             if (!isLoaded) {
@@ -409,28 +458,56 @@
             toggleSearchState(false);
         });
 
-        enviarWaBtn.addEventListener('click', () => {
+        enviarWaBtn.addEventListener('click', async () => {
+            const URL_GOOGLE_APPS_SCRIPT = "";
+
             if (addedVoters.length === 0) {
                 alert('La lista está vacía.');
                 return;
             }
 
-                if (!confirm('¿ENVIAR')) {
-                    return;
-                }
+            if (!confirm('¿ENVIAR')) {
+                return;
+            }
 
-            
+            const cedulaCoordinador = currentCoordinatorRecord ? currentCoordinatorRecord.cedula : cedulaCoordinadorInput.value.trim();
+
+            const payload = addedVoters.map(v => ({
+                cedula_elector: v.cedula,
+                cedula_responsable: cedulaCoordinador
+            }));
+
             let message = "LISTA DE VOTANTES DE MI EQUIPO\n\n";
             addedVoters.forEach((v, index) => {
                 message += `${index + 1}. CI: ${v.cedula}\n`;
                 message += `Nombre: ${v.nombre}\n`;
-                // message += `Dirección: ${v.direccion}\n\n`;
             });
 
             const encodedMessage = encodeURIComponent(message);
             const waUrl = `https://wa.me/595992776729?text=${encodedMessage}`;
-           // const waUrl = `https://wa.me/595994329417?text=${encodedMessage}`;
-            window.open(waUrl, '_blank');
+
+            const originalText = enviarWaBtn.textContent;
+            enviarWaBtn.disabled = true;
+            enviarWaBtn.textContent = "Registrando y enviando...";
+
+            try {
+                if (URL_GOOGLE_APPS_SCRIPT) {
+                    await fetch(URL_GOOGLE_APPS_SCRIPT, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                }
+            } catch (error) {
+                console.error("Error enviando datos a Google Sheets:", error);
+            } finally {
+                enviarWaBtn.disabled = false;
+                enviarWaBtn.textContent = originalText;
+                window.open(waUrl, '_blank');
+            }
         });
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
