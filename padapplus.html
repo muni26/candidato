@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>PADRONAPP - Padrón General 2026</title>
+    <title>Modulo de Registro de Electores</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     
     <style>
@@ -168,7 +168,7 @@
 
     <div class="container">
         <img src="padronapp1.png" alt="logo" class="logo">
-        <div class="red-banner">Padrón General 2026 - Fernando de la Mora</div>
+        <div class="red-banner">Modulo de Registro de Electores</div>
         
         <div id="search-card" class="card">
             <div class="form-group">
@@ -206,7 +206,7 @@
             <button class="btn btn-whatsapp" id="enviar-wa">ENVIAR POR WHATSAPP</button>
         </div>
         <div class="footer-text">
-            Padrón General Actualizado para las Municipales del 04-Octubre-2026.
+            VOTAPPY - Modulo de Registro de Electores
         </div>
     </div>
 
@@ -399,7 +399,7 @@
             `;
             voterTableBody.appendChild(row);
 
-            alert('Elector agregado a la lista.');
+            //alert('Elector agregado a la lista.');
 
             
             // Optional: reset search
@@ -415,6 +415,11 @@
                 return;
             }
 
+                if (!confirm('¿ENVIAR')) {
+                    return;
+                }
+
+            
             let message = "LISTA DE VOTANTES DE MI EQUIPO\n\n";
             addedVoters.forEach((v, index) => {
                 message += `${index + 1}. CI: ${v.cedula}\n`;
